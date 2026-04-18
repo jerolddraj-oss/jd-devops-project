@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'windows-agent-1' }
+    agent none
 
     environment {
         TF_DIR = "terraform"
@@ -10,12 +10,14 @@ pipeline {
     stages {
 
         stage('Checkout') {
+            agent { label 'windows-agent-1' }
             steps {
                 git branch: 'main', url: 'https://github.com/jerolddraj-oss/jd-devops-project.git'
             }
         }
 
         stage('Terraform Init') {
+            agent { label 'windows-agent-1' }
             steps {
                 dir("${TF_DIR}") {
                     bat 'terraform init'
@@ -24,6 +26,7 @@ pipeline {
         }
 
         stage('Terraform Plan') {
+            agent { label 'windows-agent-1' }
             steps {
                 dir("${TF_DIR}") {
                     bat 'terraform plan -out=tfplan'
@@ -32,12 +35,14 @@ pipeline {
         }
 
         stage('Approval') {
+            agent { label 'windows-agent-1' }
             steps {
                 input message: 'Do you want to apply Terraform changes?'
             }
         }
 
         stage('Terraform Apply') {
+            agent { label 'windows-agent-1' }
             steps {
                 dir("${TF_DIR}") {
                     bat 'terraform apply -auto-approve tfplan'
@@ -46,6 +51,7 @@ pipeline {
         }
 
         stage('Get VM IP') {
+            agent { label 'windows-agent-1' }
             steps {
                 script {
                     VM_IP = bat(
@@ -58,6 +64,7 @@ pipeline {
         }
 
         stage('Fetch Credentials from Key Vault') {
+            agent { label 'windows-agent-1' }
             steps {
                 script {
                     VM_USER = bat(
@@ -74,6 +81,7 @@ pipeline {
         }
 
         stage('Create Ansible Inventory') {
+            agent { label 'windows-agent-1' }
             steps {
                 script {
                     writeFile file: 'ansible/inventory.ini', text: """
@@ -92,9 +100,10 @@ ansible_port=5985
         }
 
         stage('Run Ansible') {
+            agent { label 'windows-agent' }
             steps {
                 dir("${ANSIBLE_DIR}") {
-                    bat 'ansible-playbook -i inventory.ini iis.yml'
+                    bat 'wsl ansible-playbook -i inventory.ini iis.yml'
                 }
             }
         }
