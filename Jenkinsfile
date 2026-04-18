@@ -132,7 +132,7 @@ ansible_port=5985
             agent { label 'windows-agent' }
             steps {
                 dir("${ANSIBLE_DIR}") {
-                    bat 'wsl ansible-playbook -i "/mnt/c/Program Files/Jenkins/workspace/TFandAnsible/ansible/inventory.ini" "/mnt/c/Program Files/Jenkins/workspace/TFandAnsible/ansible/iis.yml"'
+                    wsl bash -c "cd /mnt/c/Program\\ Files/Jenkins/workspace/TFandAnsible/ansible && ansible-playbook -i inventory.ini iis.yml"
                 }
             }
         }
