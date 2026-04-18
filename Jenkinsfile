@@ -134,8 +134,7 @@ ansible_port=5985
                 bat '''
 				wsl bash -c "cd /mnt/c/Program\\ Files/Jenkins/workspace/TFandAnsible/ansible && ansible-playbook -i inventory.ini iis.yml"
 				'''
-                }
             }
         }
-    }
-}
+			}
+		}
