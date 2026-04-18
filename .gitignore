@@ -1,0 +1,11 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Ansible
+inventory.ini
+
+# Sensitive
+*.pem
+*.key
