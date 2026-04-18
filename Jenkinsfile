@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'windows-agent-1' }
 
     environment {
         TF_DIR = "terraform"
