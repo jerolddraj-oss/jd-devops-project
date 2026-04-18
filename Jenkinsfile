@@ -11,7 +11,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git 'https://github.com/jerolddraj-oss/jd-devops-project.git'
+                git branch: 'main', url: 'https://github.com/jerolddraj-oss/jd-devops-project.git'
             }
         }
 
