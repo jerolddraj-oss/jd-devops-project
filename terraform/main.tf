@@ -2,11 +2,6 @@ provider "azurerm" {
   features {}
 }
 
-#resource "azurerm_resource_group" "rg" {
-  name     = "jd-rg"
-  location = "East US"
-}
-
 data "azurerm_resource_group" "rg" {
   name = "jd-rg"
 }
