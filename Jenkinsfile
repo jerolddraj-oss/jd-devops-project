@@ -1,6 +1,10 @@
 pipeline {
     agent none
 
+    parameters {
+        choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Select Terraform action')
+    }
+
     environment {
         TF_DIR = "terraform"
         ANSIBLE_DIR = "ansible"
@@ -26,6 +30,7 @@ pipeline {
         }
 
         stage('Terraform Plan') {
+            when { expression { params.ACTION == 'apply' } }
             agent { label 'windows-agent-1' }
             steps {
                 dir("${TF_DIR}") {
@@ -35,13 +40,15 @@ pipeline {
         }
 
         stage('Approval') {
+            when { expression { params.ACTION == 'apply' } }
             agent { label 'windows-agent-1' }
             steps {
-                input message: 'Do you want to apply Terraform changes?'
+                input message: 'Do you want to APPLY Terraform changes?'
             }
         }
 
         stage('Terraform Apply') {
+            when { expression { params.ACTION == 'apply' } }
             agent { label 'windows-agent-1' }
             steps {
                 dir("${TF_DIR}") {
@@ -50,7 +57,26 @@ pipeline {
             }
         }
 
+        stage('Terraform Destroy Approval') {
+            when { expression { params.ACTION == 'destroy' } }
+            agent { label 'windows-agent-1' }
+            steps {
+                input message: '⚠️ Do you REALLY want to DESTROY infrastructure?'
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when { expression { params.ACTION == 'destroy' } }
+            agent { label 'windows-agent-1' }
+            steps {
+                dir("${TF_DIR}") {
+                    bat 'terraform destroy -auto-approve'
+                }
+            }
+        }
+
         stage('Get VM IP') {
+            when { expression { params.ACTION == 'apply' } }
             agent { label 'windows-agent-1' }
             steps {
                 script {
@@ -64,6 +90,7 @@ pipeline {
         }
 
         stage('Fetch Credentials from Key Vault') {
+            when { expression { params.ACTION == 'apply' } }
             agent { label 'windows-agent-1' }
             steps {
                 script {
@@ -81,6 +108,7 @@ pipeline {
         }
 
         stage('Create Ansible Inventory') {
+            when { expression { params.ACTION == 'apply' } }
             agent { label 'windows-agent-1' }
             steps {
                 script {
@@ -100,6 +128,7 @@ ansible_port=5985
         }
 
         stage('Run Ansible') {
+            when { expression { params.ACTION == 'apply' } }
             agent { label 'windows-agent' }
             steps {
                 dir("${ANSIBLE_DIR}") {
