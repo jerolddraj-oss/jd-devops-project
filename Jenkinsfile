@@ -17,28 +17,33 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                dir("${TF_DIR}") {
-                    sh 'terraform init'
+                dir('terraform') {
+                    bat 'terraform init
                 }
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                dir("${TF_DIR}") {
-                    sh 'terraform plan -out=tfplan'
+                dir('terraform') {
+                    bat 'terraform plan -out=tfplan'
                 }
             }
         }
 
-        stage('Terraform Apply') {
+        stage('Approval') {
             steps {
-                dir("${TF_DIR}") {
-                    sh 'terraform apply -auto-approve tfplan'
+                input message: 'Do you want to apply Terraform changes?'
                 }
             }
         }
-
+		stage('Terraform Apply') {
+            steps {
+                dir('terraform') {
+                    bat 'terraform apply -auto-approve tfplan'
+				}
+			}
+		}					
         stage('Get VM IP') {
             steps {
                 script {
