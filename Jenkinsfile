@@ -131,8 +131,9 @@ ansible_port=5985
             when { expression { params.ACTION == 'apply' } }
             agent { label 'windows-agent' }
             steps {
-                dir("${ANSIBLE_DIR}") {
-                    wsl bash -c "cd /mnt/c/Program\\ Files/Jenkins/workspace/TFandAnsible/ansible && ansible-playbook -i inventory.ini iis.yml"
+                bat '''
+				wsl bash -c "cd /mnt/c/Program\\ Files/Jenkins/workspace/TFandAnsible/ansible && ansible-playbook -i inventory.ini iis.yml"
+				'''
                 }
             }
         }
