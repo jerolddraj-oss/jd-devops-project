@@ -17,7 +17,7 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                dir('terraform') {
+                dir("${TF_DIR}") {
                     bat 'terraform init'
                 }
             }
@@ -25,7 +25,7 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                dir('terraform') {
+                dir("${TF_DIR}") {
                     bat 'terraform plan -out=tfplan'
                 }
             }
@@ -34,20 +34,21 @@ pipeline {
         stage('Approval') {
             steps {
                 input message: 'Do you want to apply Terraform changes?'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir("${TF_DIR}") {
+                    bat 'terraform apply -auto-approve tfplan'
                 }
             }
         }
-		stage('Terraform Apply') {
-            steps {
-                dir('terraform') {
-                    bat 'terraform apply -auto-approve tfplan'
-				}
-			}
-		}					
+
         stage('Get VM IP') {
             steps {
                 script {
-                    VM_IP = sh(
+                    VM_IP = bat(
                         script: "cd terraform && terraform output -raw vm_private_ip",
                         returnStdout: true
                     ).trim()
@@ -59,13 +60,13 @@ pipeline {
         stage('Fetch Credentials from Key Vault') {
             steps {
                 script {
-                    VM_USER = sh(
-                        script: "az keyvault secret show --vault-name ${KEYVAULT_NAME} --name vm-username --query value -o tsv",
+                    VM_USER = bat(
+                        script: "az keyvault secret show --vault-name %KEYVAULT_NAME% --name vm-username --query value -o tsv",
                         returnStdout: true
                     ).trim()
 
-                    VM_PASS = sh(
-                        script: "az keyvault secret show --vault-name ${KEYVAULT_NAME} --name vm-password --query value -o tsv",
+                    VM_PASS = bat(
+                        script: "az keyvault secret show --vault-name %KEYVAULT_NAME% --name vm-password --query value -o tsv",
                         returnStdout: true
                     ).trim()
                 }
@@ -93,7 +94,7 @@ ansible_port=5985
         stage('Run Ansible') {
             steps {
                 dir("${ANSIBLE_DIR}") {
-                    sh 'ansible-playbook -i inventory.ini iis.yml'
+                    bat 'ansible-playbook -i inventory.ini iis.yml'
                 }
             }
         }
