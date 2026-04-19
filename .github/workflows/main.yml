@@ -1,9 +1,17 @@
 name: Terraform Pipeline
 
 on:
-  push:
-    branches: [ "main" ]
   workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform Action"
+        required: true
+        default: "plan"
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
 
 jobs:
   terraform:
@@ -32,10 +40,16 @@ jobs:
       run: terraform init
 
     - name: Terraform Plan
+      if: github.event.inputs.action == 'plan'
       working-directory: terraform
       run: terraform plan
 
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/main'
+    - name: Terraform Apply (Manual Approval Required)
+      if: github.event.inputs.action == 'apply'
       working-directory: terraform
-      run: terraform apply -auto-approve
+      run: terraform apply
+
+    - name: Terraform Destroy (Manual Approval Required)
+      if: github.event.inputs.action == 'destroy'
+      working-directory: terraform
+      run: terraform destroy
