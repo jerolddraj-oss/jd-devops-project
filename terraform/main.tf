@@ -85,7 +85,7 @@ resource "azurerm_network_interface_security_group_association" "nsg_assoc" {
 
 # Key Vault
 data "azurerm_key_vault" "kv" {
-  name                = "jd-keyvault"
+  name                = "jd-keyvault-12345"
   resource_group_name = "jd-rg"
 }
 
